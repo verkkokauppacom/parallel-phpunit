@@ -1,0 +1,43 @@
+#!/bin/bash
+ROOT="${@: -1}" # last argument
+test -d "$ROOT" || ! echo "usage: $0 [switches] <directory>" || exit 1
+ARGS="${@:1:$(($#-1))}" # remove last argument
+
+function test_directories {
+  find $ROOT -type d -exec `dirname $0`/directly-contains-testfile {} \; -print -prune
+}
+
+function child_processes {
+  current_pid=$$
+  ps -o ppid= | sed 's| *||' | grep ^${current_pid}$ | wc -l
+}
+
+function count {
+  grep -o "$1" <<< "$progress" | wc -l | sed 's| *||'
+}
+
+function print_summary {
+  progress=`find $ROOT -name phpunit-parallel.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
+  progress=$progress`find $ROOT -name phpunit-parallel.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
+  echo "Success: `count '\.'` Failed: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
+}
+
+echo "Running parallel wrapper for phpunit"
+exit_status=0
+
+find $ROOT -name phpunit-parallel.log -exec rm {} \; # remove old log files
+for dir in `test_directories`
+do
+  log=$dir/phpunit-parallel.log
+  command="phpunit $ARGS $dir"
+  echo "Starting command: $command"
+  ($command > $log 2>&1; let "exit_status += 1" ; echo "Command ended: $command"; cat $log;) &
+done
+
+while [ `child_processes` -gt 1 ] # report progress when some phpunit execution is still running
+do
+  sleep 2
+  print_summary
+done
+
+test `count F` -eq 0 -a `count E` -eq 0
