@@ -17,16 +17,16 @@ function count {
 }
 
 function print_summary {
-  progress=`find $ROOT -name phpunit-parallel.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
-  progress=$progress`find $ROOT -name phpunit-parallel.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
+  progress=`find $ROOT -name parallel-phpunit.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
+  progress=$progress`find $ROOT -name parallel-phpunit.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
   echo "Success: `count '\.'` Fail: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
 }
 
 echo "Running parallel wrapper for phpunit"
-find $ROOT -name phpunit-parallel.log -exec rm {} \; # remove old log files
+find $ROOT -name parallel-phpunit.* -exec rm {} \; # remove old log files
 for dir in `test_directories`
 do
-  log=$dir/phpunit-parallel.log
+  log=$dir/parallel-phpunit.log
   command="phpunit $ARGS $dir"
   echo "Starting command: $command"
   ($command > $log 2>&1; echo "Command ended: $command"; cat $log;) &
