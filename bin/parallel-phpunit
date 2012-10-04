@@ -7,6 +7,10 @@ function test_directories {
   find $ROOT -type d -exec `dirname $0`/directly-contains-testfile {} \; -print -prune
 }
 
+function replace {
+  echo "$1 " | sed "s|--$2[ ][ ]*[^ ][^ ]*|--$2 $3|"
+}
+
 function child_processes {
   current_pid=$$
   ps -o ppid= | sed 's| *||' | grep ^${current_pid}$ | wc -l
@@ -22,12 +26,19 @@ function print_summary {
   echo "Success: `count '\.'` Fail: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
 }
 
+function write_combined_junit {
+  echo "<testsuites>" > $1
+  find $ROOT -name parallel-phpunit.junit -exec cat {} \; | grep -v "^<?xml" | grep -v testsuites >> $1
+  echo "</testsuites>" >> $1
+}
+
 echo "Running parallel wrapper for phpunit"
+junit_file=`echo "$ARGS" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
 find $ROOT -name parallel-phpunit.* -exec rm {} \; # remove old log files
 for dir in `test_directories`
 do
   log=$dir/parallel-phpunit.log
-  command="phpunit $ARGS $dir"
+  command="phpunit `replace "$ARGS" log-junit $dir/parallel-phpunit.junit` $dir"
   echo "Starting command: $command"
   ($command > $log 2>&1; echo "Command ended: $command"; cat $log;) &
 done
@@ -38,4 +49,5 @@ do
   print_summary
 done
 
+test -z "$junit_file" || write_combined_junit $junit_file
 test `count F` -eq 0 -a `count E` -eq 0
