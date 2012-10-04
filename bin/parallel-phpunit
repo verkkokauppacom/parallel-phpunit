@@ -23,15 +23,13 @@ function print_summary {
 }
 
 echo "Running parallel wrapper for phpunit"
-exit_status=0
-
 find $ROOT -name phpunit-parallel.log -exec rm {} \; # remove old log files
 for dir in `test_directories`
 do
   log=$dir/phpunit-parallel.log
   command="phpunit $ARGS $dir"
   echo "Starting command: $command"
-  ($command > $log 2>&1; let "exit_status += 1" ; echo "Command ended: $command"; cat $log;) &
+  ($command > $log 2>&1; echo "Command ended: $command"; cat $log;) &
 done
 
 while [ `child_processes` -gt 1 ] # report progress when some phpunit execution is still running
