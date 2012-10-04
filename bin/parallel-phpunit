@@ -1,6 +1,6 @@
 #!/bin/bash
 ROOT="${@: -1}" # last argument
-test -d "$ROOT" || ! echo "usage: $0 [switches] <directory>" || exit 1
+test -d "$ROOT" || ! echo "usage: parallel-phpunit [switches] <directory>" || exit 1
 ARGS="${@:1:$(($#-1))}" # remove last argument
 
 function test_directories {
