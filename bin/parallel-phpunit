@@ -19,7 +19,7 @@ function count {
 function print_summary {
   progress=`find $ROOT -name phpunit-parallel.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
   progress=$progress`find $ROOT -name phpunit-parallel.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
-  echo "Success: `count '\.'` Failed: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
+  echo "Success: `count '\.'` Fail: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
 }
 
 echo "Running parallel wrapper for phpunit"
