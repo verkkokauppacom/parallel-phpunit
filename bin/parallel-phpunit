@@ -27,6 +27,7 @@ function print_summary {
 }
 
 function write_combined_junit {
+  mkdir -p `dirname $1`
   echo "<testsuites>" > $1
   find $ROOT -name parallel-phpunit.junit -exec cat {} \; | grep -v "^<?xml" | grep -v testsuites >> $1
   echo "</testsuites>" >> $1
