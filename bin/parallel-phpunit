@@ -33,7 +33,7 @@ function write_combined_junit {
   echo "</testsuites>" >> $1
 }
 
-trap "ps -o pid=,command= | grep \"parallel-phpunit-pid=${PID} \" | sed 's| .*||' | xargs kill -TERM &> /dev/null" EXIT
+trap "ps -o pid= -o command= | grep \"parallel-phpunit-pid=${PID} \" | grep -v grep | sed 's| .*||' | xargs kill -TERM 2> /dev/null" EXIT
 
 echo "Running parallel wrapper for phpunit"
 junit_file=`echo "$ARGS" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
