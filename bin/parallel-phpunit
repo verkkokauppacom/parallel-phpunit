@@ -1,4 +1,5 @@
 #!/bin/bash
+PID=$$
 ROOT="${@: -1}" # last argument
 test -d "$ROOT" || ! echo "usage: parallel-phpunit [switches] <directory>" || exit 1
 ARGS="${@:1:$(($#-1))}" # remove last argument
@@ -12,8 +13,7 @@ function replace {
 }
 
 function child_processes {
-  current_pid=$$
-  ps -o ppid= | sed 's| *||' | grep ^${current_pid}$ | wc -l
+  ps -o ppid= | sed 's| *||' | grep ^${PID}$ | wc -l
 }
 
 function count {
@@ -33,15 +33,17 @@ function write_combined_junit {
   echo "</testsuites>" >> $1
 }
 
+trap "ps -o pid=,command= | grep \"parallel-phpunit-pid=${PID} \" | sed 's| .*||' | xargs kill -TERM &> /dev/null" EXIT
+
 echo "Running parallel wrapper for phpunit"
 junit_file=`echo "$ARGS" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
 find $ROOT -name parallel-phpunit.* -exec rm {} \; # remove old log files
 for dir in `test_directories`
 do
   log=$dir/parallel-phpunit.log
-  command="phpunit `replace "$ARGS" log-junit $dir/parallel-phpunit.junit` $dir"
-  echo "Starting command: $command"
-  (($command || touch $dir/parallel-phpunit.fail) > $log 2>&1; echo "Command ended: $command"; cat $log;) &
+  args="`replace "$ARGS" log-junit $dir/parallel-phpunit.junit` $dir"
+  echo "Starting command: phpunit $args"
+  ((phpunit -d parallel-phpunit-pid=${PID} $args || touch $dir/parallel-phpunit.fail) &> $log; echo "Command ended: phpunit $args"; grep -v "parallel-phpunit-pid=" $log;) &
 done
 
 while [ `child_processes` -gt 1 ] # report progress when some phpunit execution is still running
