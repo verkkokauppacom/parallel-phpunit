@@ -42,7 +42,9 @@ What do I need?
 How to install?
 ---------------
 
-To install `parallel-phpunit` you just need to add the [bin](tree/master/bin) directory to your PATH:
+To install `parallel-phpunit` you just need to add the 
+[bin](https://github.com/siivonen/parallel-phpunit/tree/master/bin) directory to 
+your PATH:
 
     cd /path/of/your/choice
     git clone https://github.com/siivonen/parallel-phpunit.git
