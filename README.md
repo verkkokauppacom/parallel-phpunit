@@ -1,20 +1,57 @@
-Parallel-phpunit
-================
+What?
+-----
 
-Parallel wrapper to the [phpunit](http://www.phpunit.de/manual/3.0/en/textui.html) command
-line tool. Used the same way as `phpunit`, but internally splits the execution into several
-`phpunit` commands (one command per directory containing tests). Written in Bash and relies
-heavily to the speed and power of the *nux command line tools. Use `parallel-phpunit` in
-stead of `phpunit` if your tests take more that a minute to run.
+`phpunit` is a command line tool for running 
+[PHPUnit](https://github.com/sebastianbergmann/phpunit/) tests. It does not support 
+running tests in parallel. `parallel-phpunit` is a command line tool that works the 
+same way as `phpunit` but runs the tests in parallel. It searches for PHPUnit tests that
+you want to execute, starts multiple `phpunit` commands at the same time to run them, 
+monitors and reports the progress and returns the results at the end. The user experience
+of `parallel-phpunit` is the same as `phpunit`. In most use cases you can just simply 
+replace `phpunit` with `parallel-phpunit` and get the same end result.
 
-Installation
-------------
+Why?
+----
 
+Because it's faster! You can save a lot of time in your development or continuous 
+integration simply by repacing `phpunit` with `parallel-phpunit`. Often you have tests that 
+are valuable but they just take time to execute. Selenium tests for example are slow by 
+nature and the more you have them the longer your test execution takes.
+
+The built-in parallel support for PHPUnit has been wanted and waited for a long time but 
+nothing has happened. Considering the PHP language level restrictions like poor thread 
+support and the global nature of built-in things (like code coverage) it could take a
+long time before we have it. If we have it at all. `parallel-phpunit` is already working
+solution that you can just start using.
+
+When?
+-----
+
+When your `phpunit` command takes too long (in your opinion) to execute you should test if
+`parallel-phpunit` makes it faster.
+
+What do I need?
+---------------
+
+`parallel-phpunit` is written in Bash and relies heavily to the speed and power of the 
+*nux command line tools. To run it you need to have:
+
+* Working Bash environment (tested to work at least in Linux and Mac)
+* Working `phpunit` command
+
+How to install?
+---------------
+
+To install `parallel-phpunit` you just need to add the [bin](tree/master/bin) directory to your PATH:
+
+    cd /path/of/your/choice
     git clone https://github.com/siivonen/parallel-phpunit.git
-    export PATH=$PATH:`pwd`/parallel-phpunit/bin
+    <add /path/of/your/choice/parallel-phpunit/bin to your PATH>
 
-Running
--------
+How to run?
+-----------
+
+The usage is:
 
     parallel-phpunit [phpunit switches] <directory>
 
