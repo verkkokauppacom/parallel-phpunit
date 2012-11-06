@@ -91,6 +91,17 @@ executions by the `parallel-phpunit`. You can run 1000 `phpunit` commands in par
 server and test set can manage that. In the original use case where this script was written to
 37 minute Selenium test execution was ran in 4 minutes using Selenium Grid.
 
+There is a simple example test set that you can use to test or study `parallel-phpunit`. Run
+following command in the root of your parallel-phpunit Git clone:
+
+    parallel-phpunit example
+
+This will run a simple test set parallelizing it into three concurrent `phpunit` commands. You
+can use this command to test that your `parallel-phpunit` command works. You can also investigate 
+and maybe change the tests and directory sctructure under 
+[example](https://github.com/siivonen/parallel-phpunit/tree/master/example) to learn how the 
+`parallel-phpunit` command works.
+
 Known limitations
 -----------------
 
