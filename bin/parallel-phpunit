@@ -21,29 +21,37 @@ function count {
 }
 
 function print_summary {
-  progress=`find $ROOT -name parallel-phpunit.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
-  progress=$progress`find $ROOT -name parallel-phpunit.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
+  progress=`find $ROOT -name parallel-phpunit.${PID}.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
+  progress=$progress`find $ROOT -name parallel-phpunit.${PID}.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
   echo "Success: `count '\.'` Fail: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
 }
 
 function write_combined_junit {
   mkdir -p `dirname $1`
   echo "<testsuites>" > $1
-  find $ROOT -name parallel-phpunit.junit -exec cat {} \; | grep -v "^<?xml" | grep -v testsuites >> $1
+  find $ROOT -name parallel-phpunit.${PID}.junit -exec cat {} \; | grep -v "^<?xml" | grep -v testsuites >> $1
   echo "</testsuites>" >> $1
 }
 
-trap "ps -o pid= -o command= | grep \"parallel-phpunit-pid=${PID} \" | grep -v grep | awk '{print \$1}' | xargs kill -TERM 2> /dev/null" EXIT
+function on_exit {
+  ps -o pid= -o command= | grep "parallel-phpunit-pid=${PID} " | grep -v grep | awk '{print $1}' | xargs kill -TERM 2> /dev/null
+  while [ `child_processes` -gt 1 ]
+  do
+    sleep 1
+  done
+  find $ROOT -name parallel-phpunit.${PID}* -delete
+}
+
+trap "on_exit" EXIT
 
 echo "Running parallel wrapper for phpunit"
 junit_file=`echo "$ARGS" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
-find $ROOT -name parallel-phpunit.* -exec rm {} \; # remove old log files
 for dir in `test_directories`
 do
-  log=$dir/parallel-phpunit.log
-  args="`replace "$ARGS" log-junit $dir/parallel-phpunit.junit` $dir"
+  log=$dir/parallel-phpunit.${PID}.log
+  args="`replace "$ARGS" log-junit $dir/parallel-phpunit.${PID}.junit` $dir"
   echo "Starting command: phpunit $args"
-  ((phpunit -d parallel-phpunit-pid=${PID} $args || touch $dir/parallel-phpunit.fail) &> $log; echo "Command ended: phpunit $args"; grep -v "parallel-phpunit-pid=" $log;) &
+  ((phpunit -d parallel-phpunit-pid=${PID} $args || touch $dir/parallel-phpunit.${PID}.fail) &> $log; echo "Command ended: phpunit $args"; grep -v "parallel-phpunit-pid=" $log) &
 done
 
 while [ `child_processes` -gt 1 ] # report progress when some phpunit execution is still running
@@ -53,4 +61,4 @@ do
 done
 
 test -z "$junit_file" || write_combined_junit $junit_file
-test -z "`find $ROOT -name parallel-phpunit.fail`"
+test -z "`find $ROOT -name parallel-phpunit.${PID}.fail`"
