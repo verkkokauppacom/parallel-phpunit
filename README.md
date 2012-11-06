@@ -71,15 +71,15 @@ executed:
 
     phpunit [phpunit switches] <test_dir>
 
-Once a `phpunit` command is finnished the full output of it's execution is printed out.
-When all `phpunit` commands are finnished the execution will end. The exit status is 0 if
-all `phphunit` commands return 0 otherwice it is 1.
-
-When atleast one `phpunit` command is running a total number of tests ran so far is output 
-so you can see the progress. Here is an example of the output:
+When atleast one `phpunit` command is running a summary report line is printed once every two 
+seconds. Here is an example output:
 
     Success: 30 Fail: 0 Error: 0 Skip: 3 Incomplete: 0
     Success: 35 Fail: 0 Error: 0 Skip: 3 Incomplete: 0
+
+Once a `phpunit` command is finnished the full output of it's execution is printed out.
+When all `phpunit` commands are finnished the execution will end. The exit status is 0 if
+all `phphunit` commands return 0 otherwice it is 1.
 
 The total execution time of `parallel-phpunit` is the execution time of the longest lasting
 `phpunit` command. You can radically improve the execution time by organizing your tests in a
