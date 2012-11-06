@@ -104,3 +104,10 @@ Known limitations
 * The test execution summary lines are counted from the "progress dots" of the `phpunit` output
   so if your tests print something between the dots you might see wrong numbers in the summary
   lines. For the same reason using `--tap` or `--testdox` will break the summary lines.
+
+Contributing and error reporting
+--------------------------------
+
+Use the standard GitHub tools: pull requests, issues and Wiki.
+
+
