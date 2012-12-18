@@ -4,16 +4,17 @@ ROOT="${@: -1}" # last argument
 ROOT="${ROOT%/}" # strip the last slash
 ARGS="${@:1:$(($#-1))}" # remove last argument
 PHPUNIT_ARG=''
-MAX_THREAD=3
-PHPUNIT_CMD='phpunit'
-TEST_MASK="*Test.php"
-
+CFG_MAX_THREAD=3
+CFG_PHPUNIT_CMD='phpunit'
+CFG_TEST_MASK="*Test.php"
+CFG_VERBOSE=0
 
 function show_help {
     echo "Paralleling options:"
-    echo "    --pu-cmd - custom phpunit run script, default $PHPUNIT_CMD"
-    echo "    --pu-thread - max threads, default $MAX_THREAD"
-    echo "    --pu-test-mask - tests file template, default $TEST_MASK"
+    echo "    --pu-cmd - custom phpunit run script, default $CFG_PHPUNIT_CMD"
+    echo "    --pu-thread - max threads, default $CFG_MAX_THREAD"
+    echo "    --pu-test-mask - tests file template, default $CFG_TEST_MASK"
+    echo "    --pu-verbose - show addional information (0|1), default $CFG_VERBOSE"
     echo "Usage: parallel-phpunit [switches] <directory>"
     echo ""
     exit 1
@@ -25,20 +26,26 @@ function set_config {
     local paramValue=${1:$pos}
     case $paramName in
         --pu-thread)
-            MAX_THREAD="$paramValue"
+            CFG_MAX_THREAD="$paramValue"
             ;;
         --pu-cmd)
-            PHPUNIT_CMD="$paramValue"
+            CFG_PHPUNIT_CMD="$paramValue"
             ;;
         --pu-test-mask)
-            TEST_MASK="$paramValue"
+            CFG_TEST_MASK="$paramValue"
+            ;;
+        --pu-verbose)
+            if [ ! $paramValue -eq 0 ];then
+                paramValue=1
+            fi
+            CFG_VERBOSE="$paramValue"
             ;;
     esac
 }
 
 
 function test_files {
-    find $ROOT -name \*$TEST_MASK
+    find $ROOT -name \*$CFG_TEST_MASK
 }
 
 function replace {
@@ -56,7 +63,7 @@ function in_array() {
 }
 
 function child_processes {
-    pgrep -P ${PID} | wc -l
+    pgrep -P ${PID} | grep -v 'sleep' | wc -l
 }
 
 function count {
@@ -93,7 +100,7 @@ function refresh_threads {
     local active=()
     active=(`pgrep -P ${PID}`)
     local i=0
-    while [ $i -lt $MAX_THREAD ]
+    while [ $i -lt $CFG_MAX_THREAD ]
     do
         local pid=${child_list[$i]}
         in_array $pid ${active[@]}
@@ -109,7 +116,7 @@ function refresh_threads {
 function get_free_thread {
     declare -a child_list=("${!1}")
     local i=0
-    while [ $i -lt $MAX_THREAD ]
+    while [ $i -lt $CFG_MAX_THREAD ]
     do
         if [ ${child_list[$i]} -eq 0 ];then
             echo $i
@@ -121,12 +128,14 @@ function get_free_thread {
 }
 
 
-
 echo "Running parallel wrapper for phpunit"
 
 #check parameters
 
 if [ ! -d "$ROOT" ];then
+    if [ -f 'phpunit.xml' ];then
+        echo "Execute using config file not supported"
+    fi
     show_help
     exit 1
 fi
@@ -145,20 +154,22 @@ done
 # init vars
 threads=()
 i=0
-while [ $i -lt $MAX_THREAD ]
+while [ $i -lt $CFG_MAX_THREAD ]
 do
     threads[$i]=0
     i=`expr $i + 1`
 done
 
 junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
-
+if [ $CFG_VERBOSE -eq 1 ];then
+    echo "PID: $PID"
+fi
 #execute tests
 i=0
 for filename in `test_files`
 do
     #check active process
-    while [ `child_processes` -gt $MAX_THREAD ]
+    while [ `child_processes` -gt $CFG_MAX_THREAD ]
     do
         sleep 1
     done
@@ -175,8 +186,11 @@ do
     log=$dir/parallel-phpunit.${PID}.${i}.log
     args="`replace "$PHPUNIT_ARG" log-junit $dir/parallel-phpunit.${PID}.${i}.junit` $filename"
     echo "Starting command: phpunit $args thread_id $thread_id"
-    (($PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} $args || touch $dir/parallel-phpunit.${PID}.${i}.fail) &> $log; echo "Command ended: phpunit $args"; grep -v "parallel-phpunit-pid=" $log) &
+    (($CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} $args || touch $dir/parallel-phpunit.${PID}.${i}.fail) &> $log; echo "Command ended: phpunit $args"; grep -v "parallel-phpunit-pid=" $log) &
     threads[$thread_id]=$!
+    if [ $CFG_VERBOSE -eq 1 ];then
+        echo "Run test with pid: $!, thread id: $thread_id"
+    fi
 done
 
 #report progress when some phpunit execution is still running
