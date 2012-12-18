@@ -55,7 +55,7 @@ How to run?
 
 The usage is:
 
-    parallel-phpunit [phpunit switches] <directory>
+    parallel-phpunit [parallel-phpunit switches] [phpunit switches] <directory>
 
 Only the directory version of `phpunit` is supported so you can't replace the directory
 part with file name. All given `phpunit` switches are directly passed to the parallel
@@ -64,12 +64,10 @@ part with file name. All given `phpunit` switches are directly passed to the par
 How does it work?
 -----------------
 
-The `parallel-phpunit` command first finds out the root level test directories under given
-directory. Test directories have PHPUnit tests directly inside them. Only the top level
-test directories are searched. For every top level test directory following command is
-executed:
+The `parallel-phpunit` command finds files with tests using mask '*Test.php'( for customize use --pu-test-mask) under given
+directory. For every test file following command is executed:
 
-    phpunit [phpunit switches] <test_dir>
+    phpunit [phpunit switches] <test_file>
 
 When atleast one `phpunit` command is running a summary report line is printed once every two 
 seconds. Here is an example output:
@@ -80,16 +78,6 @@ seconds. Here is an example output:
 Once a `phpunit` command is finnished the full output of it's execution is printed out.
 When all `phpunit` commands are finnished the execution will end. The exit status is 0 if
 all `phphunit` commands return 0 otherwice it is 1.
-
-The total execution time of `parallel-phpunit` is the execution time of the longest lasting
-`phpunit` command. You can radically improve the execution time by organizing your tests in a
-directory structure where your test files are located in the leaf directories and the execution
-time of every leaf directory is more or less the same. By analyzing the output of your
-`parallel-phpunit` command you can determine which directories are the ones taking most of the
-time and which you might want to split. There is no limit to the number of concurrent test
-executions by the `parallel-phpunit`. You can run 1000 `phpunit` commands in parallel if your
-server and test set can manage that. In the original use case where this script was written to
-37 minute Selenium test execution was ran in 4 minutes using Selenium Grid.
 
 There is a simple example test set that you can use to test or study `parallel-phpunit`. Run
 following command in the root of your parallel-phpunit Git clone:
@@ -102,11 +90,20 @@ and maybe change the tests and directory sctructure under
 [example](https://github.com/siivonen/parallel-phpunit/tree/master/example) to learn how the 
 `parallel-phpunit` command works.
 
+Paralleling options:"
+* --pu-cmd - custom phpunit run script, default phpunit
+* --pu-thread - max threads, default 3
+* --pu-test-mask - tests file template, default *Test.php
+* --pu-verbose - show addional information (0|1), default 0
+
+Example:
+parallel-phpunit --pu-thread=10 --pu-verbose=1 ../example/Web/
+
+NOTE: parallel-phpunit using unlike parameter format !!!
+
 Known limitations
 -----------------
 
-* Determining the parallel test directories is done using the default test file names (*Test.php 
-  or *.phpt) so switch `--test-suffix` can't be used properly.
 
 * The reporting switches (like `--coverage-*` or `--log-*`) are not guaranteed to work since all
   parallel executions are writing to the same directories or files. Only `--log-junit` is ensured 
@@ -115,6 +112,8 @@ Known limitations
 * The test execution summary lines are counted from the "progress dots" of the `phpunit` output
   so if your tests print something between the dots you might see wrong numbers in the summary
   lines. For the same reason using `--tap` or `--testdox` will break the summary lines.
+
+* Doesn't work phpunit using xml config
 
 Contributing and error reporting
 --------------------------------
