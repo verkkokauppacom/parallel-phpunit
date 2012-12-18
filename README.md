@@ -99,7 +99,7 @@ Paralleling options:"
 Example:
 parallel-phpunit --pu-thread=10 --pu-verbose=1 ../example/Web/
 
-NOTE: parallel-phpunit using unlike parameter format !!!
+NOTE: parallel-phpunit using unlike phpunit parameter format !!!
 
 Known limitations
 -----------------
