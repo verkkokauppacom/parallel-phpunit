@@ -92,9 +92,6 @@ function on_exit {
     find $ROOT -name parallel-phpunit.${PID}* -delete
 }
 
-trap "on_exit" EXIT
-
-
 function refresh_threads {
     declare -a child_list=("${!1}")
     local active=()
@@ -150,7 +147,6 @@ do
     fi
 done
 
-
 # init vars
 threads=()
 i=0
@@ -164,6 +160,9 @@ junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit " | sed 's|.*--log-junit [
 if [ $CFG_VERBOSE -eq 1 ];then
     echo "PID: $PID"
 fi
+
+trap "on_exit" EXIT
+
 #execute tests
 i=0
 for filename in `test_files`
