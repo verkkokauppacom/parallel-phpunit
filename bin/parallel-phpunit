@@ -16,7 +16,6 @@ function show_help {
     echo "    --pu-test-mask - tests file template, default $CFG_TEST_MASK"
     echo "    --pu-verbose - show addional information (0|1), default $CFG_VERBOSE"
     echo "Usage: parallel-phpunit [switches] <directory>"
-    echo ""
     exit 1
 }
 
