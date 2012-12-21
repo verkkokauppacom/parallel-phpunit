@@ -7,14 +7,12 @@ PHPUNIT_ARG=''
 CFG_MAX_THREAD=3
 CFG_PHPUNIT_CMD='phpunit'
 CFG_TEST_MASK="*Test.php"
-CFG_VERBOSE=0
 
 function show_help {
     echo "Paralleling options:"
     echo "    --pu-cmd - custom phpunit run script, default $CFG_PHPUNIT_CMD"
     echo "    --pu-thread - max threads, default $CFG_MAX_THREAD"
     echo "    --pu-test-mask - tests file template, default $CFG_TEST_MASK"
-    echo "    --pu-verbose - show addional information (0|1), default $CFG_VERBOSE"
     echo "Usage: parallel-phpunit [switches] <directory>"
     exit 1
 }
@@ -32,12 +30,6 @@ function set_config {
             ;;
         --pu-test-mask)
             CFG_TEST_MASK="$paramValue"
-            ;;
-        --pu-verbose)
-            if [ ! $paramValue -eq 0 ];then
-                paramValue=1
-            fi
-            CFG_VERBOSE="$paramValue"
             ;;
     esac
 }
@@ -156,9 +148,6 @@ do
 done
 
 junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
-if [ $CFG_VERBOSE -eq 1 ];then
-    echo "PID: $PID"
-fi
 
 trap "on_exit" EXIT
 
@@ -188,9 +177,6 @@ do
     last_pid=$!
     disown $last_pid
     threads[$thread_id]=$last_pid
-    if [ $CFG_VERBOSE -eq 1 ];then
-        echo "Run test with pid: $!, thread id: $thread_id"
-    fi
 done
 
 #report progress when some phpunit execution is still running

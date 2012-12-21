@@ -9,7 +9,6 @@ Paralleling options:
     --pu-cmd - custom phpunit run script, default phpunit
     --pu-thread - max threads, default 3
     --pu-test-mask - tests file template, default *Test.php
-    --pu-verbose - show addional information (0|1), default 0
 Usage: parallel-phpunit [switches] <directory>
 EOS;
         $this->verifyCommandOutput("", 1, $helpOutput);
