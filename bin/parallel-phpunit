@@ -20,7 +20,7 @@ function show_help {
 }
 
 function set_config {
-    local pos=`expr index $1 '='`
+    local pos=`echo "$1" | sed 's|=.*||' | wc -c`
     local paramName=${1:0:$pos-1}
     local paramValue=${1:$pos}
     case $paramName in
