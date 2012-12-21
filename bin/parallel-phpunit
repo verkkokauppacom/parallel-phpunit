@@ -154,6 +154,7 @@ do
     while [ `child_processes` -ge $CFG_MAX_THREAD ]
     do
         sleep 1
+        print_summary
     done
     #extract dir
     dir="$filename"
@@ -177,7 +178,7 @@ done
 #report progress when some phpunit execution is still running
 while [ `child_processes` -gt 0 ]
 do
-    sleep 2
+    sleep 1
     print_summary
 done
 
