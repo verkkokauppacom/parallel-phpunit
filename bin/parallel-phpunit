@@ -122,6 +122,7 @@ if [ ! -d "$ROOT" ];then
 fi
 
 #extract extended options
+ARGS=`echo "$ARGS" | sed 's|--pu-thread[ =]*|--pu-thread=|' | sed 's|--pu-command[ =]*|--pu-command=|'`
 for param in $ARGS
 do
     if [ ${param:0:4} = '--pu' ];then
