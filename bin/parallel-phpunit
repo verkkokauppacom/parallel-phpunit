@@ -84,7 +84,7 @@ function write_combined_junit {
 
 function on_exit {
     pkill -TERM -P ${PID} &
-    while [ `child_processes` -gt 1 ]
+    while [ `child_processes` -gt 0 ]
     do
         sleep 1
     done
@@ -167,7 +167,7 @@ i=0
 for filename in `test_files`
 do
     #check active process
-    while [ `child_processes` -gt $CFG_MAX_THREAD ]
+    while [ `child_processes` -ge $CFG_MAX_THREAD ]
     do
         sleep 1
     done
@@ -192,7 +192,7 @@ do
 done
 
 #report progress when some phpunit execution is still running
-while [ `child_processes` -gt 1 ]
+while [ `child_processes` -gt 0 ]
 do
     sleep 2
     print_summary
