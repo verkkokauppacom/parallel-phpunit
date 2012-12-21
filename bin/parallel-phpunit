@@ -117,9 +117,6 @@ echo "Running parallel wrapper for phpunit"
 #check parameters
 
 if [ ! -d "$ROOT" ];then
-    if [ -f 'phpunit.xml' ];then
-        echo "Execute using config file not supported"
-    fi
     show_help
     exit 1
 fi
