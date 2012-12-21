@@ -6,13 +6,12 @@ ARGS="${@:1:$(($#-1))}" # remove last argument
 PHPUNIT_ARG=''
 CFG_MAX_THREAD=3
 CFG_PHPUNIT_CMD='phpunit'
-CFG_TEST_MASK="*Test.php"
+TEST_SUFFIX="Test.php,.phpt"
 
 function show_help {
     echo "Paralleling options:"
     echo "    --pu-cmd - custom phpunit run script, default $CFG_PHPUNIT_CMD"
     echo "    --pu-thread - max threads, default $CFG_MAX_THREAD"
-    echo "    --pu-test-mask - tests file template, default $CFG_TEST_MASK"
     echo "Usage: parallel-phpunit [switches] <directory>"
     exit 1
 }
@@ -28,15 +27,12 @@ function set_config {
         --pu-cmd)
             CFG_PHPUNIT_CMD="$paramValue"
             ;;
-        --pu-test-mask)
-            CFG_TEST_MASK="$paramValue"
-            ;;
     esac
 }
 
 
 function test_files {
-    find $ROOT -name \*$CFG_TEST_MASK
+    find $ROOT `echo "$TEST_SUFFIX" | sed 's|^| -name *|g' | sed 's|,| -o -name *|'`
 }
 
 function replace {
@@ -148,6 +144,8 @@ do
 done
 
 junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
+test_suffix=`echo "$PHPUNIT_ARG " | sed 's|.*--test-suffix[ =]*||' | sed 's| .*||'`
+test -z "$test_suffix" || TEST_SUFFIX=$test_suffix
 
 trap "on_exit" EXIT
 
@@ -171,7 +169,7 @@ do
     thread_id=`get_free_thread threads[@]`
     #execute
     log=$dir/parallel-phpunit.${PID}.${i}.log
-    command=" $CFG_PHPUNIT_CMD`replace "$PHPUNIT_ARG" log-junit $dir/parallel-phpunit.${PID}.${i}.junit`$filename"
+    command="$CFG_PHPUNIT_CMD`replace "$PHPUNIT_ARG" log-junit $dir/parallel-phpunit.${PID}.${i}.junit`$filename"
     echo "Starting command with thread $thread_id: $command"
     (($command || touch $dir/parallel-phpunit.${PID}.${i}.fail) &> $log; echo "Command ended: $command"; cat $log) &
     last_pid=$!

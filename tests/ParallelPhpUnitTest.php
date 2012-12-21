@@ -8,7 +8,6 @@ Running parallel wrapper for phpunit
 Paralleling options:
     --pu-cmd - custom phpunit run script, default phpunit
     --pu-thread - max threads, default 3
-    --pu-test-mask - tests file template, default *Test.php
 Usage: parallel-phpunit [switches] <directory>
 EOS;
         $this->verifyCommandOutput("", 1, $helpOutput);
