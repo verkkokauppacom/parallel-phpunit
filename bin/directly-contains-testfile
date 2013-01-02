@@ -1,2 +1,0 @@
-#!/bin/bash
-find $1 -maxdepth 1 -name "*Test.php" -o -name "*.phpt" | grep -q .
