@@ -51,10 +51,10 @@ your PATH:
     <add /path/of/your/choice/parallel-phpunit/bin to your PATH>
 
 To choose which version you want to use (or to upgrade or downgrade) you just use
-the tag of your choice:
+the corresponding release branch:
 
-    git pull
-    git checkout -B r1.0 1.0
+    git fetch
+    git checkout -t origin/release/1.1
     
 How to run?
 -----------
@@ -116,6 +116,19 @@ Known limitations
 * The test execution summary lines are counted from the "progress dots" of the `phpunit` output
   so if your tests print something between the dots you might see wrong numbers in the summary
   lines. For the same reason using `--tap` or `--testdox` will break the summary lines.
+
+Release Notes
+-------------
+
+Relese 1.1
+* Start using parallelization by test file instead of parallelization by test directory
+* Switch --pu-threads to control the number of cuncurrent phpunit commands
+* Switch --pu-cmd to overwrite phpunit command line to be used in parallel executions
+* Allow changing the test file name pattern (=use --test-suffix instead of hard coded pattern)
+
+Release 1.0
+* The first fully working version
+
 
 Contributing and error reporting
 --------------------------------
