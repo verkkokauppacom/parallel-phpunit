@@ -32,7 +32,7 @@ function set_config {
 
 
 function test_files {
-    find $ROOT `echo "$TEST_SUFFIX" | sed 's|^| -name *|g' | sed 's|,| -o -name *|'`
+    find $ROOT `echo "$TEST_SUFFIX" | sed 's|^| -name *|g' | sed 's|,| -o -name *|'` | sort
 }
 
 function replace {
