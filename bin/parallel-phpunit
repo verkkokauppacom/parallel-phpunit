@@ -112,7 +112,7 @@ function get_free_thread {
 }
 
 
-echo "Running parallel wrapper for phpunit"
+echo "Running parallel-phpunit 1.1"
 
 #check parameters
 
