@@ -61,22 +61,32 @@ How to run?
 
 The usage is:
 
-    parallel-phpunit [parallel-phpunit switches] [phpunit switches] <directory>
+    parallel-phpunit [phpunit and parallel-phpunit switches] <directory>
 
 Only the directory version of `phpunit` is supported so you can't replace the directory
-part with file name. All given `phpunit` switches are directly passed to the parallel
-`phpunit` commands.
+part with file name. The parallel-phpunit switches are:
+ * --pu-cmd - Custom phpunit run script, default value is 'phpunit'
+ * --pu-thread - The maximum number of parallel phpunit commands running at the same time, default value is '3'
+
+All other switches are considered to be `phpunit` switches and they are directly passed to the 
+parallel `phpunit` commands.
 
 How does it work?
 -----------------
 
-The `parallel-phpunit` command finds files with tests using mask '*Test.php'( for customize use --pu-test-mask) under given
-directory. For every test file following command is executed:
+The `parallel-phpunit` command first finds all phpunit test files under given directory. By default
+all file names ending with 'Test.php' or '.phpt' are considered to be test files. You can change this
+default with phpunit switch --test-suffix. Test files are executed in alphabetical order and for every 
+test file following command is executed:
 
     phpunit [phpunit switches] <test_file>
 
-When atleast one `phpunit` command is running a summary report line is printed once every two 
-seconds. Here is an example output:
+There is a maximum limit of parallel phpunit commands (controlled by switch --pu-thread) and only this
+amount of concurrent test executions are running at the same time. The rest of the executions are waiting
+for some running test execution to finnish.
+
+When atleast one `phpunit` command is running a summary report line is printed once every second.
+Here is an example output:
 
     Success: 30 Fail: 0 Error: 0 Skip: 3 Incomplete: 0
     Success: 35 Fail: 0 Error: 0 Skip: 3 Incomplete: 0
@@ -96,20 +106,8 @@ and maybe change the tests and directory sctructure under
 [example](https://github.com/siivonen/parallel-phpunit/tree/master/example) to learn how the 
 `parallel-phpunit` command works.
 
-Paralleling options:"
-* --pu-cmd - custom phpunit run script, default phpunit
-* --pu-thread - max threads, default 3
-* --pu-test-mask - tests file template, default *Test.php
-* --pu-verbose - show addional information (0|1), default 0
-
-Example:
-parallel-phpunit --pu-thread=10 --pu-verbose=1 ../example/Web/
-
-NOTE: parallel-phpunit using unlike phpunit parameter format !!!
-
 Known limitations
 -----------------
-
 
 * The reporting switches (like `--coverage-*` or `--log-*`) are not guaranteed to work since all
   parallel executions are writing to the same directories or files. Only `--log-junit` is ensured 
@@ -118,8 +116,6 @@ Known limitations
 * The test execution summary lines are counted from the "progress dots" of the `phpunit` output
   so if your tests print something between the dots you might see wrong numbers in the summary
   lines. For the same reason using `--tap` or `--testdox` will break the summary lines.
-
-* Doesn't work phpunit using xml config
 
 Contributing and error reporting
 --------------------------------
