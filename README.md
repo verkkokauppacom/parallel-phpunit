@@ -50,6 +50,12 @@ your PATH:
     git clone https://github.com/siivonen/parallel-phpunit.git
     <add /path/of/your/choice/parallel-phpunit/bin to your PATH>
 
+To choose which version you want to use (or to upgrade or downgrade) you just use
+the tag of your choice:
+
+    git pull
+    git checkout -B r1.0 1.0
+    
 How to run?
 -----------
 
