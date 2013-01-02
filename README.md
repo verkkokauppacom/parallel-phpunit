@@ -66,7 +66,7 @@ The usage is:
 Only the directory version of `phpunit` is supported so you can't replace the directory
 part with file name. The parallel-phpunit switches are:
  * --pu-cmd - Custom phpunit run script, default value is 'phpunit'
- * --pu-thread - The maximum number of parallel phpunit commands running at the same time, default value is '3'
+ * --pu-threads - The maximum number of parallel phpunit commands running at the same time, default value is '3'
 
 All other switches are considered to be `phpunit` switches and they are directly passed to the 
 parallel `phpunit` commands.
@@ -81,7 +81,7 @@ test file following command is executed:
 
     phpunit [phpunit switches] <test_file>
 
-There is a maximum limit of parallel phpunit commands (controlled by switch --pu-thread) and only this
+There is a maximum limit of parallel phpunit commands (controlled by switch --pu-threads) and only this
 amount of concurrent test executions are running at the same time. The rest of the executions are waiting
 for some running test execution to finnish.
 

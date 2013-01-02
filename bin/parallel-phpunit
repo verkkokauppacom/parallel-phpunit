@@ -11,7 +11,7 @@ TEST_SUFFIX="Test.php,.phpt"
 function show_help {
     echo "Paralleling options:"
     echo "    --pu-cmd - custom phpunit run script, default $CFG_PHPUNIT_CMD"
-    echo "    --pu-thread - max threads, default $CFG_MAX_THREAD"
+    echo "    --pu-threads - max threads, default $CFG_MAX_THREAD"
     echo "Usage: parallel-phpunit [switches] <directory>"
     exit 1
 }
@@ -21,7 +21,7 @@ function set_config {
     local paramName=${1:0:$pos-1}
     local paramValue=${1:$pos}
     case $paramName in
-        --pu-thread)
+        --pu-threads)
             test "$paramValue" -lt 1 || CFG_MAX_THREAD="$paramValue"
             ;;
         --pu-cmd)
@@ -122,7 +122,7 @@ if [ ! -d "$ROOT" ];then
 fi
 
 #extract extended options
-ARGS=`echo "$ARGS" | sed 's|--pu-thread[ =]*|--pu-thread=|' | sed 's|--pu-command[ =]*|--pu-command=|'`
+ARGS=`echo "$ARGS" | sed 's|--pu-threads[ =]*|--pu-threads=|' | sed 's|--pu-command[ =]*|--pu-command=|'`
 for param in $ARGS
 do
     if [ ${param:0:4} = '--pu' ];then

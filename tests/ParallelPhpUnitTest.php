@@ -7,7 +7,7 @@ class ParallelPhpUnitTest extends PHPUnit_Framework_TestCase
 Running parallel wrapper for phpunit
 Paralleling options:
     --pu-cmd - custom phpunit run script, default phpunit
-    --pu-thread - max threads, default 3
+    --pu-threads - max threads, default 3
 Usage: parallel-phpunit [switches] <directory>
 EOS;
         $this->verifyCommandOutput("", 1, $helpOutput);
