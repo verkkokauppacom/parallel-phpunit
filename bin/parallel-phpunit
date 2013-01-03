@@ -50,7 +50,7 @@ function in_array() {
 }
 
 function child_processes {
-    pgrep -P ${PID} | grep -v 'sleep' | wc -l
+    jobs -p | xargs ps -o pid= -p $! | wc -l
 }
 
 function count {
@@ -135,6 +135,7 @@ done
 # init vars
 threads=()
 i=0
+true & # ensure that $! is set
 while [ $i -lt $CFG_MAX_THREAD ]
 do
     threads[$i]=0
@@ -171,9 +172,7 @@ do
     command="$CFG_PHPUNIT_CMD`replace "$PHPUNIT_ARG" log-junit $dir/parallel-phpunit.${PID}.${i}.junit`$filename"
     echo "Starting command with thread $thread_id: $command"
     (($command || touch $dir/parallel-phpunit.${PID}.${i}.fail) &> $log; echo "Command ended: $command"; cat $log) &
-    last_pid=$!
-    disown $last_pid
-    threads[$thread_id]=$last_pid
+    threads[$thread_id]=$!
 done
 
 #report progress when some phpunit execution is still running
