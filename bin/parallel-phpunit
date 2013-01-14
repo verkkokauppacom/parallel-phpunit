@@ -74,7 +74,7 @@ function on_exit {
     pkill -TERM -P ${PID} &
     while [ `child_processes` -gt 0 ]
     do
-        sleep 1
+        sleep 0.1
     done
     find $ROOT -name parallel-phpunit.${PID}* -delete
 }
@@ -153,10 +153,12 @@ i=0
 for filename in `test_files`
 do
     #check active process
+    j=0
     while [ `child_processes` -ge $CFG_MAX_THREAD ]
     do
-        sleep 1
-        print_summary
+        j=`expr $j + 1`
+        sleep 0.1
+        test $j -ge 10 && print_summary && j=0
     done
     #extract dir
     dir="$filename"
@@ -176,10 +178,12 @@ do
 done
 
 #report progress when some phpunit execution is still running
+j=0
 while [ `child_processes` -gt 0 ]
 do
-    sleep 1
-    print_summary
+    j=`expr $j + 1`
+    sleep 0.1
+    test $j -ge 10 && print_summary && j=0
 done
 
 test -z "$junit_file" || write_combined_junit $junit_file
