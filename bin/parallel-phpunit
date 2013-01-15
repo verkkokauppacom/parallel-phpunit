@@ -132,6 +132,10 @@ do
     fi
 done
 
+(echo "$ARGS" | grep -q '\-\-coverage\-') && echo "warning: coverage switches (--coverage-*) are passed directly to parallel phpunit commands so you probably don't want to use them" 1>&2
+(echo "$ARGS" | grep '\-\-log\-' | grep -vq 'log\-junit') && echo "warning: logging switches (--log-*) are passed directly to parallel phpunit commands so you probably don't want to use them" 1>&2
+(echo "$ARGS" | grep -q '\-\-testdox\-') && echo "warning: TestDox switches (--testdox-*) are passed directly to parallel phpunit commands so you probably don't want to use them" 1>&2 
+
 # init vars
 threads=()
 i=0
