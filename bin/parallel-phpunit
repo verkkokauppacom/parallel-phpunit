@@ -13,6 +13,7 @@ function show_help {
     echo "    --pu-cmd - custom phpunit run script, default $CFG_PHPUNIT_CMD"
     echo "    --pu-threads - max threads, default $CFG_MAX_THREAD"
     echo "Usage: parallel-phpunit [switches] <directory>"
+    echo ""
     exit 1
 }
 
@@ -49,19 +50,39 @@ function in_array() {
     return 1
 }
 
+
+# when use shell script for run test, you have wrong count child phpunit process
 function child_processes {
-    jobs -p | xargs ps -o pid= -p $! | wc -l
+    declare -a child_list=("${!1}")
+    local active=()
+    local counter=0
+    active=(`pgrep -P ${PID}`)
+    local i=0
+    while [ $i -lt $CFG_MAX_THREAD ]
+    do
+        local pid=${child_list[$i]}
+        in_array $pid ${active[@]}
+        if [ $? -eq 0 ];then
+            counter=`expr $counter + 1`
+        fi
+        i=`expr $i + 1`
+    done
+    echo "$counter"
+
 }
+
 
 function count {
     grep -o "$1" <<< "$progress" | wc -l | sed 's| *||'
 }
+
 
 function print_summary {
     progress=`find $ROOT -name parallel-phpunit.${PID}.*.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
     progress=$progress`find $ROOT -name parallel-phpunit.${PID}.*.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
     echo "Success: `count '\.'` Fail: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
 }
+
 
 function write_combined_junit {
     mkdir -p `dirname $1`
@@ -70,14 +91,12 @@ function write_combined_junit {
     echo "</testsuites>" >> $1
 }
 
+
 function on_exit {
     pkill -TERM -P ${PID} &
-    while [ `child_processes` -gt 0 ]
-    do
-        sleep 0.1
-    done
     find $ROOT -name parallel-phpunit.${PID}* -delete
 }
+
 
 function refresh_threads {
     declare -a child_list=("${!1}")
@@ -110,7 +129,6 @@ function get_free_thread {
     done
     echo '-1'
 }
-
 
 echo "Running parallel-phpunit 1.1"
 
@@ -158,7 +176,7 @@ for filename in `test_files`
 do
     #check active process
     j=0
-    while [ `child_processes` -ge $CFG_MAX_THREAD ]
+    while [ `child_processes threads[@]` -ge $CFG_MAX_THREAD ]
     do
         j=`expr $j + 1`
         sleep 0.1
@@ -175,7 +193,8 @@ do
     thread_id=`get_free_thread threads[@]`
     #execute
     log=$dir/parallel-phpunit.${PID}.${i}.log
-    command="$CFG_PHPUNIT_CMD`replace "$PHPUNIT_ARG" log-junit $dir/parallel-phpunit.${PID}.${i}.junit`$filename"
+    #thread number can be use in tests, example: choose free selenium host
+    command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit $dir/parallel-phpunit.${PID}.${i}.junit`$filename"
     echo "Starting command with thread $thread_id: $command"
     (($command || touch $dir/parallel-phpunit.${PID}.${i}.fail) &> $log; echo "Command ended: $command"; cat $log) &
     threads[$thread_id]=$!
@@ -183,12 +202,14 @@ done
 
 #report progress when some phpunit execution is still running
 j=0
-while [ `child_processes` -gt 0 ]
+while [ `child_processes threads[@]` -gt 0 ]
 do
     j=`expr $j + 1`
     sleep 0.1
     test $j -ge 10 && print_summary && j=0
 done
+
+print_summary
 
 test -z "$junit_file" || write_combined_junit $junit_file
 test -z "`find $ROOT -name parallel-phpunit.${PID}.*.fail`"
