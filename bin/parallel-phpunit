@@ -2,6 +2,8 @@
 PID=$$
 ROOT="${@: -1}" # last argument
 ROOT="${ROOT%/}" # strip the last slash
+TMP=`mktemp -d 2> /dev/null`
+(test -n "${TMP}" && test -d "${TMP}") || ! TMP="/tmp/${PID}" || mkdir -p ${TMP} || exit 1
 ARGS="${@:1:$(($#-1))}" # remove last argument
 PHPUNIT_ARG=''
 CFG_MAX_THREAD=3
@@ -78,8 +80,8 @@ function count {
 
 
 function print_summary {
-    progress=`find $ROOT -name parallel-phpunit.${PID}.*.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
-    progress=$progress`find $ROOT -name parallel-phpunit.${PID}.*.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
+    progress=`find ${TMP}/ -name "parallel-phpunit.*.log" -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
+    progress=$progress`find ${TMP}/ -name parallel-phpunit.*.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
     echo "Success: `count '\.'` Fail: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
 }
 
@@ -87,14 +89,14 @@ function print_summary {
 function write_combined_junit {
     mkdir -p `dirname $1`
     echo "<testsuites>" > $1
-    find $ROOT -name parallel-phpunit.${PID}.*.junit -exec cat {} \; | grep -v "^<?xml" | grep -v testsuites >> $1
+    find ${TMP}/ -name parallel-phpunit.*.junit -exec cat {} \; | grep -v "^<?xml" | grep -v testsuites >> $1
     echo "</testsuites>" >> $1
 }
 
 
 function on_exit {
     pkill -TERM -P ${PID} &
-    find $ROOT -name parallel-phpunit.${PID}* -delete
+    rm -rf ${TMP}/
 }
 
 
@@ -182,21 +184,16 @@ do
         sleep 0.1
         test $j -ge 10 && print_summary && j=0
     done
-    #extract dir
-    dir="$filename"
-    if [ -f "$filename" ]; then
-        dir=`dirname $filename`
-    fi
+    prefix="${TMP}/parallel-phpunit.${i}"
     i=`expr $i + 1`
     #get free thread number
     threads=( $(refresh_threads threads[@]) )
     thread_id=`get_free_thread threads[@]`
     #execute
-    log=$dir/parallel-phpunit.${PID}.${i}.log
     #thread number can be use in tests, example: choose free selenium host
-    command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit $dir/parallel-phpunit.${PID}.${i}.junit`$filename"
+    command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit ${prefix}.junit`$filename"
     echo "Starting command with thread $thread_id: $command"
-    (($command || touch $dir/parallel-phpunit.${PID}.${i}.fail) &> $log; echo "Command ended: $command"; cat $log) &
+    (($command || touch ${TMP}/fail) &> ${prefix}.log; echo "Command ended: $command"; cat ${prefix}.log) &
     threads[$thread_id]=$!
 done
 
@@ -212,4 +209,4 @@ done
 print_summary
 
 test -z "$junit_file" || write_combined_junit $junit_file
-test -z "`find $ROOT -name parallel-phpunit.${PID}.*.fail`"
+! test -f ${TMP}/fail

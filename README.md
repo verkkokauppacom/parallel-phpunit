@@ -120,6 +120,9 @@ Known limitations
 Release Notes
 -------------
 
+Master
+* Use separate directory to write temporary files (parallel-phpunit* files no longer written next to tests)
+
 Relese 1.1
 * Start using parallelization by test file instead of parallelization by test directory
 * Switch --pu-threads to control the number of cuncurrent phpunit commands
