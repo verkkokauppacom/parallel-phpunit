@@ -95,7 +95,16 @@ function write_combined_junit {
 
 
 function on_exit {
-    pkill -TERM -P ${PID} &
+    for cid in $threads
+    do
+        if [ $cid -gt 0 ];then
+            pkill -TERM -P ${cid} &
+        fi
+    done
+    while [ `child_processes threads[@]` -gt 0 ]
+    do
+        sleep 0.1
+    done
     rm -rf ${TMP}/
 }
 
