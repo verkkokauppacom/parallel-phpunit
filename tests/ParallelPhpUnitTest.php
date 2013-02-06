@@ -4,7 +4,7 @@ class ParallelPhpUnitTest extends PHPUnit_Framework_TestCase
     public function testHelpMessage()
     {
         $helpOutput = <<<EOS
-Running parallel-phpunit 1.1
+Running parallel-phpunit 1.2
 Paralleling options:
     --pu-cmd - custom phpunit run script, default phpunit
     --pu-threads - max threads, default 3

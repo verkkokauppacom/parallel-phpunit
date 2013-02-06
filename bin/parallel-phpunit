@@ -15,7 +15,6 @@ function show_help {
     echo "    --pu-cmd - custom phpunit run script, default $CFG_PHPUNIT_CMD"
     echo "    --pu-threads - max threads, default $CFG_MAX_THREAD"
     echo "Usage: parallel-phpunit [switches] <directory>"
-    echo ""
     exit 1
 }
 
@@ -141,7 +140,7 @@ function get_free_thread {
     echo '-1'
 }
 
-echo "Running parallel-phpunit 1.1"
+echo "Running parallel-phpunit 1.2"
 
 #check parameters
 

@@ -120,7 +120,9 @@ Known limitations
 Release Notes
 -------------
 
-Master
+Release 1.2
+* Move repository from siivonen to verkkokauppacom
+* Fix for issue 4 (temporary log files left hanging in some environments)
 * Use separate directory to write temporary files (parallel-phpunit* files no longer written next to tests)
 
 Relese 1.1
