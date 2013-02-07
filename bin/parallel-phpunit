@@ -1,4 +1,5 @@
 #!/bin/bash
+VERSION='1.2'
 PID=$$
 ROOT="${@: -1}" # last argument
 ROOT="${ROOT%/}" # strip the last slash
@@ -140,7 +141,7 @@ function get_free_thread {
     echo '-1'
 }
 
-echo "Running parallel-phpunit 1.2"
+echo "Running parallel-phpunit $VERSION"
 
 #check parameters
 
