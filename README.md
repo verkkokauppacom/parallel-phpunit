@@ -43,11 +43,11 @@ How to install?
 ---------------
 
 To install `parallel-phpunit` you just need to add the 
-[bin](https://github.com/siivonen/parallel-phpunit/tree/master/bin) directory to 
+[bin](https://github.com/verkkokauppacom/parallel-phpunit/tree/master/bin) directory to 
 your PATH:
 
     cd /path/of/your/choice
-    git clone https://github.com/siivonen/parallel-phpunit.git
+    git clone https://github.com/verkkokauppacom/parallel-phpunit.git
     <add /path/of/your/choice/parallel-phpunit/bin to your PATH>
 
 To choose which version you want to use (or to upgrade or downgrade) you just use
@@ -103,7 +103,7 @@ following command in the root of your parallel-phpunit Git clone:
 This will run a simple test set parallelizing it into three concurrent `phpunit` commands. You
 can use this command to test that your `parallel-phpunit` command works. You can also investigate 
 and maybe change the tests and directory sctructure under 
-[example](https://github.com/siivonen/parallel-phpunit/tree/master/example) to learn how the 
+[example](https://github.com/verkkokauppacom/parallel-phpunit/tree/master/example) to learn how the 
 `parallel-phpunit` command works.
 
 Known limitations
