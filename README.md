@@ -67,6 +67,7 @@ Only the directory version of `phpunit` is supported so you can't replace the di
 part with file name. The parallel-phpunit switches are:
  * --pu-cmd - Custom phpunit run script, default value is 'phpunit'
  * --pu-threads - The maximum number of parallel phpunit commands running at the same time, default value is '3'
+ * --pu-retries - How many times to rerun the test file if it fails
 
 All other switches are considered to be `phpunit` switches and they are directly passed to the 
 parallel `phpunit` commands.
@@ -119,6 +120,9 @@ Known limitations
 
 Release Notes
 -------------
+
+Master
+* Add --pu-retries switch (handy for unstable Selenium test for example)
 
 Release 1.2
 * Move repository from siivonen to verkkokauppacom
