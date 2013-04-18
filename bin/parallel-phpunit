@@ -10,11 +10,13 @@ PHPUNIT_ARG=''
 CFG_MAX_THREAD=3
 CFG_PHPUNIT_CMD='phpunit'
 TEST_SUFFIX="Test.php,.phpt"
+RETRIES=0
 
 function show_help {
     echo "Paralleling options:"
     echo "    --pu-cmd - custom phpunit run script, default $CFG_PHPUNIT_CMD"
     echo "    --pu-threads - max threads, default $CFG_MAX_THREAD"
+    echo "    --pu-retries - how many times to rerun the test file if it fails"
     echo "Usage: parallel-phpunit [switches] <directory>"
     exit 1
 }
@@ -26,6 +28,9 @@ function set_config {
     case $paramName in
         --pu-threads)
             test "$paramValue" -lt 1 || CFG_MAX_THREAD="$paramValue"
+            ;;
+        --pu-retries)
+            test "$paramValue" -lt 0 || RETRIES="$paramValue"
             ;;
         --pu-cmd)
             CFG_PHPUNIT_CMD="$paramValue"
@@ -141,6 +146,16 @@ function get_free_thread {
     echo '-1'
 }
 
+function run_command {
+    for retry in `seq 0 $RETRIES`
+    do
+        test 0 -eq $retry || echo "Command failed. Retry($retry/$RETRIES): $@"
+        $@ || continue
+        return 0
+    done
+    return 1
+}
+
 echo "Running parallel-phpunit $VERSION"
 
 #check parameters
@@ -151,7 +166,7 @@ if [ ! -d "$ROOT" ];then
 fi
 
 #extract extended options
-ARGS=`echo "$ARGS" | sed 's|--pu-threads[ =]*|--pu-threads=|' | sed 's|--pu-cmd[ =]*|--pu-cmd=|'`
+ARGS=`echo "$ARGS" | sed 's|--pu-threads[ =]*|--pu-threads=|' | sed 's|--pu-cmd[ =]*|--pu-cmd=|' | sed 's|--pu-retries[ =]*|--pu-retries=|'`
 for param in $ARGS
 do
     if [ ${param:0:4} = '--pu' ];then
@@ -202,7 +217,7 @@ do
     #thread number can be use in tests, example: choose free selenium host
     command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit ${prefix}.junit`$filename"
     echo "Starting command with thread $thread_id: $command"
-    (($command || touch ${TMP}/fail) &> ${prefix}.log; echo "Command ended: $command"; test -f ${prefix}.log && cat ${prefix}.log) &
+    ((run_command $command || touch ${TMP}/fail) &> ${prefix}.log; echo "Command ended: $command"; test -f ${prefix}.log && cat ${prefix}.log) &
     threads[$thread_id]=$!
 done
 
