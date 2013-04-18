@@ -15,10 +15,10 @@ EOS;
 
     private function verifyCommandOutput($arguments, $expectedExitStatus = 0, $expectedOutput = null)
     {
-        $parallel_phpunit = __DIR__ . "/../bin/parallel-phpunit";
+        $command = __DIR__ . "/../bin/parallel-phpunit " . $arguments;
         $output = array();
         $exitStatus = -1;
-        exec($parallel_phpunit, $output, $exitStatus);
+        exec($command, $output, $exitStatus);
         $this->assertEquals($expectedExitStatus, $exitStatus);
         $expectedOutput && $this->assertEquals($expectedOutput, implode("\n", $output));
     }
