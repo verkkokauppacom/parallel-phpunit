@@ -10,10 +10,10 @@ Paralleling options:
     --pu-threads - max threads, default 3
 Usage: parallel-phpunit [switches] <directory>
 EOS;
-        $this->verifyCommandOutput("", 1, $helpOutput);
+        $this->runParallelPHPUnit("", 1, $helpOutput);
     }
 
-    private function verifyCommandOutput($arguments, $expectedExitStatus = 0, $expectedOutput = null)
+    private function runParallelPHPUnit($arguments, $expectedExitStatus = 0, $expectedOutput = null)
     {
         $command = __DIR__ . "/../bin/parallel-phpunit " . $arguments;
         $output = array();
