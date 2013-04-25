@@ -10,6 +10,7 @@ PHPUNIT_ARG=''
 CFG_MAX_THREAD=3
 CFG_PHPUNIT_CMD='phpunit'
 TEST_SUFFIX="Test.php,.phpt"
+TEST_FILTER="."
 RETRIES=0
 
 function show_help {
@@ -40,7 +41,14 @@ function set_config {
 
 
 function test_files {
-    find $ROOT `echo "$TEST_SUFFIX" | sed 's|^| -name *|g' | sed 's|,| -o -name *|'` | sort
+    local match_files=""
+    local names=`echo "$TEST_SUFFIX" | sed 's|^| -name *|g' | sed 's|,| -o -name *|'`
+    for file in `find $ROOT $names`
+    do
+        local pattern=`echo "${TEST_FILTER}" | sed 's|::|.*|'`
+        (cat $file | tr '\n' ' ' | tr '\r' ' ' | tr '\t' ' ' | sed 's|  | |g' | grep -q "$pattern") && match_files="$file $match_files"
+    done
+    echo "$match_files" | sort
 }
 
 function replace {
@@ -196,7 +204,8 @@ do
 done
 
 junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
-set_variable_from_arguments TEST_SUFFIX test-suffix 
+set_variable_from_arguments TEST_SUFFIX test-suffix
+set_variable_from_arguments TEST_FILTER filter
 
 trap "on_exit" EXIT
 

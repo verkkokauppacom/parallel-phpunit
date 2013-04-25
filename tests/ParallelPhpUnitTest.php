@@ -24,6 +24,17 @@ EOS;
         $this->runParallelPHPUnit("--pu-retries 1" . $arguments, 0);
     }
 
+    public function testFiltering()
+    {
+        $emptyOutput = "Running parallel-phpunit 1.2\nSuccess: 0 Fail: 0 Error: 0 Skip: 0 Incomplete: 0";
+        $testDir = __DIR__ . "/../example";
+        $output = $this->runParallelPHPUnit("--filter noTestsFound " . $testDir, 0);
+        $this->assertEquals($emptyOutput, $output);
+        $output = $this->runParallelPHPUnit("--filter ATest::testIt " . $testDir, 0);
+        $this->assertEquals("Success: 1 Fail: 0 Error: 0 Skip: 0 Incomplete: 0", end(explode("\n", $output)));
+        $this->assertFalse(strstr($output, "No tests"));
+    }
+
     private function runParallelPHPUnit($arguments, $expectedExitStatus = 0)
     {
         $command = __DIR__ . "/../bin/parallel-phpunit " . $arguments;
