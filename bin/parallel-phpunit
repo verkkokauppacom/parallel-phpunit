@@ -47,6 +47,11 @@ function replace {
     echo "$1 " | sed "s|--$2[ ][ ]*[^ ][^ ]*|--$2 $3|"
 }
 
+function set_variable_from_arguments { 
+    argument_value=`echo "$PHPUNIT_ARG " | sed "s|.*--${2}[ =]*||" | sed 's| .*||'`
+    test -z "$argument_value" || eval $1="$argument_value"
+}
+
 # http://fvue.nl/wiki/Bash:_Check_if_array_element_exists
 function in_array() {
     local hay needle=$1
@@ -191,8 +196,7 @@ do
 done
 
 junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
-test_suffix=`echo "$PHPUNIT_ARG " | sed 's|.*--test-suffix[ =]*||' | sed 's| .*||'`
-test -z "$test_suffix" || TEST_SUFFIX=$test_suffix
+set_variable_from_arguments TEST_SUFFIX test-suffix 
 
 trap "on_exit" EXIT
 
