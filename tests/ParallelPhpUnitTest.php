@@ -11,7 +11,8 @@ Paralleling options:
     --pu-retries - how many times to rerun the test file if it fails
 Usage: parallel-phpunit [switches] <directory>
 EOS;
-        $this->runParallelPHPUnit("", 1, $helpOutput);
+        $commandOutput = $this->runParallelPHPUnit("", 1);
+        $this->assertEquals($helpOutput, $commandOutput);
     }
 
     public function testRetries()
@@ -23,14 +24,14 @@ EOS;
         $this->runParallelPHPUnit("--pu-retries 1" . $arguments, 0);
     }
 
-    private function runParallelPHPUnit($arguments, $expectedExitStatus = 0, $expectedOutput = null)
+    private function runParallelPHPUnit($arguments, $expectedExitStatus = 0)
     {
         $command = __DIR__ . "/../bin/parallel-phpunit " . $arguments;
         $output = array();
         $exitStatus = -1;
         exec($command, $output, $exitStatus);
         $this->assertEquals($expectedExitStatus, $exitStatus);
-        $expectedOutput && $this->assertEquals($expectedOutput, implode("\n", $output));
+        return implode($output, "\n");
     }
 }
 ?>
