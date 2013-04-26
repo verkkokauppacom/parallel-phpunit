@@ -77,8 +77,9 @@ How does it work?
 
 The `parallel-phpunit` command first finds all phpunit test files under given directory. By default
 all file names ending with 'Test.php' or '.phpt' are considered to be test files. You can change this
-default with phpunit switch --test-suffix. Test files are executed in alphabetical order and for every 
-test file following command is executed:
+default with phpunit switch --test-suffix. The test files are then filtered to those that match your
+phpunit --filter switch (if you haven't given this switch in command line no filtering will be done).
+Test files are executed in alphabetical order and for every test file following command is executed:
 
     phpunit [phpunit switches] <test_file>
 
@@ -118,10 +119,16 @@ Known limitations
   so if your tests print something between the dots you might see wrong numbers in the summary
   lines. For the same reason using `--tap` or `--testdox` will break the summary lines.
 
+* Filtering the test file list is based on running the filter regular expression on the whole file content not 
+  just the Classname::testMethod string as done in PHPUnit. That's why sometimes test file list is not filtered
+  correctly (out commented test methods will be matched for example and some corner case regular expressions,
+  like 'ClassName..testMethod', will not work).
+
 Release Notes
 -------------
 
 Master
+* Filter the file list to the ones that match given --filter switch (no more "No tests executed" in the logs)
 * Add --pu-retries switch (handy for unstable Selenium test for example)
 
 Release 1.2
