@@ -1,0 +1,16 @@
+{
+    "name": "verkkokauppacom/parallel-phpunit",
+    "type": "library",
+    "description": "Parallel version of phpunit command line",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Samuli Siivonen",
+            "email": "samuli.siivonen@reaktor.fi"
+        }
+    ],
+    "require": {
+        "phpunit/phpunit": "*"
+    },
+    "bin": ["bin/parallel-phpunit"]
+}
