@@ -55,7 +55,9 @@ the corresponding release branch:
 
     git fetch
     git checkout -t origin/release/1.1
-    
+   
+Alternatively you can also install `parallel-phpunit` with Composer: (https://packagist.org/packages/verkkokauppacom/parallel-phpunit).
+
 How to run?
 -----------
 
