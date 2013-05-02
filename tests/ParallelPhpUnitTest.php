@@ -6,7 +6,7 @@ class ParallelPhpUnitTest extends PHPUnit_Framework_TestCase
         $helpOutput = <<<EOS
 Running parallel-phpunit 1.2
 Paralleling options:
-    --pu-cmd - custom phpunit run script, default phpunit
+    --pu-cmd - custom phpunit run script, default: first phpunit in PATH or phpunit next to parallel-phpunit
     --pu-threads - max threads, default 3
     --pu-retries - how many times to rerun the test file if it fails
 Usage: parallel-phpunit [switches] <directory>
