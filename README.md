@@ -67,7 +67,7 @@ The usage is:
 
 Only the directory version of `phpunit` is supported so you can't replace the directory
 part with file name. The parallel-phpunit switches are:
- * --pu-cmd - Custom phpunit run script, default value is 'phpunit'
+ * --pu-cmd - Custom phpunit run script, default: first phpunit in PATH or phpunit next to parallel-phpunit
  * --pu-threads - The maximum number of parallel phpunit commands running at the same time, default value is '3'
  * --pu-retries - How many times to rerun the test file if it fails
 
@@ -130,6 +130,7 @@ Release Notes
 -------------
 
 Master
+* Add support for Composer installation
 * Filter the file list to the ones that match given --filter switch (no more "No tests executed" in the logs)
 * Add --pu-retries switch (handy for unstable Selenium test for example)
 
