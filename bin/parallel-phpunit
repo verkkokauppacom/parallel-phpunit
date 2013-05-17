@@ -1,4 +1,5 @@
 #!/bin/bash
+set -f
 VERSION='1.2'
 PID=$$
 ROOT="${@: -1}" # last argument
