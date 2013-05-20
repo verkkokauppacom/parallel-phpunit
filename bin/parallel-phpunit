@@ -99,8 +99,8 @@ function count {
 
 
 function print_summary {
-    progress=`find ${TMP}/ -name "parallel-phpunit.*.log" -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]*$"`
-    progress=$progress`find ${TMP}/ -name parallel-phpunit.*.log -exec cat {} \; -exec echo \; | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
+    progress=`find ${TMP}/ -name "parallel-phpunit.*.log" -exec cat {} \; -exec echo \; | perl -pe 's/\e\[?.*?[\@-~]//g' | grep "^[\.FESI][\.FESI]*$"`
+    progress=$progress`find ${TMP}/ -name parallel-phpunit.*.log -exec cat {} \; -exec echo \; | perl -pe 's/\e\[?.*?[\@-~]//g' | grep "^[\.FESI][\.FESI]* " | sed 's| .*||'`
     echo "Success: `count '\.'` Fail: `count F` Error: `count E` Skip: `count S` Incomplete: `count I`"
 }
 
