@@ -42,7 +42,7 @@ EOS;
         $exitStatus = -1;
         exec($command, $output, $exitStatus);
         $this->assertEquals($expectedExitStatus, $exitStatus);
+
         return implode($output, "\n");
     }
 }
-?>

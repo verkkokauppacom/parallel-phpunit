@@ -10,4 +10,3 @@ class BTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(true);
     }
 }
-?>

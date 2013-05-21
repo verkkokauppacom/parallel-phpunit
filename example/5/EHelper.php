@@ -6,4 +6,3 @@ class EHelper
         sleep(1);
     }
 }
-?>
