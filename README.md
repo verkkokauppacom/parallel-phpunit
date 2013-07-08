@@ -130,6 +130,7 @@ Release Notes
 -------------
 
 Master
+* Consider failing phpunit commands as test failures (fix for issue #13)
 * Add support for Composer installation
 * Filter the file list to the ones that match given --filter switch (no more "No tests executed" in the logs)
 * Add --pu-retries switch (handy for unstable Selenium test for example)

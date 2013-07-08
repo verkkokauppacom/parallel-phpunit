@@ -161,13 +161,16 @@ function get_free_thread {
 }
 
 function run_command {
+    local exit_status=0
     for retry in `seq 0 $RETRIES`
     do
         test 0 -eq $retry || echo "Command failed. Retry($retry/$RETRIES): $@"
-        $@ || continue
-        return 0
+        $@
+        exit_status=$?
+        test $exit_status -eq 0 && return
+        test $exit_status -lt 3 || echo F
     done
-    return 1
+    touch ${TMP}/fail
 }
 
 echo "Running parallel-phpunit $VERSION"
@@ -231,7 +234,7 @@ do
     #thread number can be use in tests, example: choose free selenium host
     command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit ${prefix}.junit`$filename"
     echo "Starting command with thread $thread_id: $command"
-    ((run_command $command || touch ${TMP}/fail) &> ${prefix}.log; echo "Command ended: $command"; test -f ${prefix}.log && cat ${prefix}.log) &
+    (run_command $command &> ${prefix}.log; echo "Command ended: $command"; test -f ${prefix}.log && cat ${prefix}.log) &
     threads[$thread_id]=$!
 done
 
