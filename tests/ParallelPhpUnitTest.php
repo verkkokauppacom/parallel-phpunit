@@ -9,6 +9,7 @@ Paralleling options:
     --pu-cmd - custom phpunit run script, default: first phpunit in PATH or phpunit next to parallel-phpunit
     --pu-threads - max threads, default 3
     --pu-retries - how many times to rerun the test file if it fails
+    --pu-verbose - print all phpunit commands and their output, otherwise only failing commands are written
 Usage: parallel-phpunit [switches] <directory>
 EOS;
         $commandOutput = $this->runParallelPHPUnit("", 1);

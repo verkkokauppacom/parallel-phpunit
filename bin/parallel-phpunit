@@ -13,12 +13,14 @@ CFG_PHPUNIT_CMD=`which phpunit || echo $0 | sed 's|parallel-phpunit$|phpunit|'`
 TEST_SUFFIX="Test.php,.phpt"
 TEST_FILTER="."
 RETRIES=0
+VERBOSE=false
 
 function show_help {
     echo "Paralleling options:"
     echo "    --pu-cmd - custom phpunit run script, default: first phpunit in PATH or phpunit next to parallel-phpunit"
     echo "    --pu-threads - max threads, default $CFG_MAX_THREAD"
     echo "    --pu-retries - how many times to rerun the test file if it fails"
+    echo "    --pu-verbose - print all phpunit commands and their output, otherwise only failing commands are written"
     echo "Usage: parallel-phpunit [switches] <directory>"
     exit 1
 }
@@ -33,6 +35,9 @@ function set_config {
             ;;
         --pu-retries)
             test "$paramValue" -lt 0 || RETRIES="$paramValue"
+            ;;
+        --pu-verbose)
+            VERBOSE=true
             ;;
         --pu-cmd)
             CFG_PHPUNIT_CMD="$paramValue"
@@ -162,13 +167,21 @@ function get_free_thread {
 
 function run_command {
     local exit_status=0
+    local log_file=$1
+    shift
     for retry in `seq 0 $RETRIES`
     do
-        test 0 -eq $retry || echo "Command failed. Retry($retry/$RETRIES): $@"
-        $@
+        test 0 -eq $retry || echo "Retry($retry/$RETRIES): $@"
+        ! $VERBOSE || echo "Starting command: $@"
+        $@ &> $log_file
         exit_status=$?
-        test $exit_status -eq 0 && return
-        test $exit_status -lt 3 || echo F
+        ! $VERBOSE || echo "Command ended: $@"
+        ! $VERBOSE || cat $log_file
+        test $exit_status -eq 0 && return $exit_status
+        $VERBOSE || echo "Command failed: $@"
+        $VERBOSE || cat $log_file
+        cat $log_file | perl -pe 's/\e\[?.*?[\@-~]//g' | grep "^[\.FESI][\.FESI]*$" | grep -q F
+        test $? -eq 0 || (echo F >> $log_file)
     done
     touch ${TMP}/fail
 }
@@ -233,8 +246,7 @@ do
     #execute
     #thread number can be use in tests, example: choose free selenium host
     command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit ${prefix}.junit`$filename"
-    echo "Starting command with thread $thread_id: $command"
-    (run_command $command &> ${prefix}.log; echo "Command ended: $command"; test -f ${prefix}.log && cat ${prefix}.log) &
+    run_command ${prefix}.log $command &
     threads[$thread_id]=$!
 done
 
