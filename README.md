@@ -54,7 +54,7 @@ To choose which version you want to use (or to upgrade or downgrade) you just us
 the corresponding release branch:
 
     git fetch
-    git checkout -t origin/release/1.1
+    git checkout -t origin/1.3
    
 Alternatively you can also install `parallel-phpunit` with Composer: (https://packagist.org/packages/verkkokauppacom/parallel-phpunit).
 
