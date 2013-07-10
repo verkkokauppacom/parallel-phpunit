@@ -21,7 +21,7 @@ nature and the more you have them the longer your test execution takes.
 The built-in parallel support for PHPUnit has been wanted and waited for a long time but 
 nothing has happened. Considering the PHP language level restrictions like poor thread 
 support and the global nature of built-in things (like code coverage) it could take a
-long time before we have it. If we have it at all. `parallel-phpunit` is already working
+long time before we have it. If we have it at all. `parallel-phpunit` is already a working
 solution that you can just start using.
 
 When?
@@ -36,7 +36,7 @@ What do I need?
 `parallel-phpunit` is written in Bash and relies heavily to the speed and power of the 
 *nux command line tools. To run it you need to have:
 
-* Working Bash environment (tested to work at least in Linux and Mac)
+* Working Bash environment (tested to work in Mac and several flavors of Linux)
 * Working `phpunit` command
 
 How to install?
@@ -67,27 +67,29 @@ The usage is:
 
 Only the directory version of `phpunit` is supported so you can't replace the directory
 part with file name. The parallel-phpunit switches are:
- * --pu-cmd - Custom phpunit run script, default: first phpunit in PATH or phpunit next to parallel-phpunit
- * --pu-threads - The maximum number of parallel phpunit commands running at the same time, default value is '3'
- * --pu-retries - How many times to rerun the test file if it fails
+ * --pu-cmd - Custom phpunit run script (default: first phpunit in PATH or phpunit next to parallel-phpunit)
+ * --pu-threads - The maximum number of parallel `phpunit` commands running at the same time (3 by default)
+ * --pu-retries - How many times to rerun the test file if it fails (0 by default)
+ * --pu-verbose - Print all starting and ending phpunit commands and their outputs, by default only failing cases are output (off by default)
 
 All other switches are considered to be `phpunit` switches and they are directly passed to the 
-parallel `phpunit` commands.
+`phpunit` commands.
 
 How does it work?
 -----------------
 
 The `parallel-phpunit` command first finds all phpunit test files under given directory. By default
 all file names ending with 'Test.php' or '.phpt' are considered to be test files. You can change this
-default with phpunit switch --test-suffix. The test files are then filtered to those that match your
-phpunit --filter switch (if you haven't given this switch in command line no filtering will be done).
-Test files are executed in alphabetical order and for every test file following command is executed:
+default with `phpunit` switch --test-suffix. The test files are then filtered to those that match your
+`phpunit` --filter switch. If you haven't given any filter in command line no filtering will be done
+to the file list. Test files are executed in alphabetical order and for every test file following command 
+is executed:
 
     phpunit [phpunit switches] <test_file>
 
 There is a maximum limit of parallel phpunit commands (controlled by switch --pu-threads) and only this
 amount of concurrent test executions are running at the same time. The rest of the executions are waiting
-for some running test execution to finnish.
+for some running test execution to finish.
 
 When atleast one `phpunit` command is running a summary report line is printed once every second.
 Here is an example output:
@@ -95,9 +97,14 @@ Here is an example output:
     Success: 30 Fail: 0 Error: 0 Skip: 3 Incomplete: 0
     Success: 35 Fail: 0 Error: 0 Skip: 3 Incomplete: 0
 
-Once a `phpunit` command is finnished the full output of it's execution is printed out.
-When all `phpunit` commands are finnished the execution will end. The exit status is 0 if
-all `phphunit` commands return 0 otherwice it is 1.
+If any `phpunit` command fails the command and it's output is printed out otherwise the execution is 
+silent. You can change this default behavior by adding switch --pu-verbose to your command. Then all 
+the individual `phpunit` commands and their outputs are printed out regardless of their outcome. If
+your tests are unstable (sometimes failing when they should succeed) you can add switch --pu-retries
+to your command. This will cause `parallel-phpunit` to rerun (for maximum given number of times) failing 
+`phpunit` commands to verify that they are truly broken. If a failing command succeeds in some retry
+it is considered to be successful. When all `phpunit` commands are finnished the execution will end.
+The exit status is 0 if all `phphunit` commands return 0 otherwice it is 1.
 
 There is a simple example test set that you can use to test or study `parallel-phpunit`. Run
 following command in the root of your parallel-phpunit Git clone:
