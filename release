@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+function fail {
+    echo "$@"
+    exit 1
+}
+
+test -n "$1" || fail "usage: $0 <release number>"
+
+cd `dirname $0`
+
+# update from remote
+git fetch -p
+git checkout master
+git pull
+
+# replace version numbers
+SED="sed -i"
+test `uname` == Darwin && SED="sed -i delete-me"
+$SED "s|VERSION=.*|VERSION='$1'|" bin/parallel-phpunit > tmp
+$SED "s|Running parallel-phpunit [^\\]*|Running parallel-phpunit juu|" tests/ParallelPhpUnitTest.php > tmp
+find . -name "*.delete-me" -delete
+perl -pe 's/^Master/"Master\n\nRelease 1.3"/e' README.md > tmp
+mv tmp README.md
+git commit -m "Release $1" bin/parallel-phpunit tests/ParallelPhpUnitTest.php README.md
+
+# run tests
+phpunit tests || fail "Tests fail in branch $1"
+
+# push changes to remote
+git push origin master:$1 || fail "Release $1 already done"
+git push origin master
+echo "Release $1 done"
+
