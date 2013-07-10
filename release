@@ -6,6 +6,7 @@ function fail {
 }
 
 test -n "$1" || fail "usage: $0 <release number>"
+echo "$1" | grep -q '^[0-9]\+\.[0-9]\+\.[0-9]\+$' || fail "Release number should be in the format X.Y.Z"
 
 cd `dirname $0`
 
@@ -29,7 +30,8 @@ git commit -m "Release $1" bin/parallel-phpunit tests/ParallelPhpUnitTest.php RE
 phpunit tests || fail "Tests fail in branch $1"
 
 # push changes to remote
-git push origin master:$1 || fail "Release $1 already done"
+git tag $1 || fail "Release $1 already done"
+git push origin $1
 git push origin master
 echo "Release $1 done"
 
