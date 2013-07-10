@@ -16,9 +16,9 @@ git pull
 
 # replace version numbers
 SED="sed -i"
-test `uname` == Darwin && SED="sed -i delete-me"
+test `uname` == Darwin && SED="sed -i .delete-me"
 $SED "s|VERSION=.*|VERSION='$1'|" bin/parallel-phpunit > tmp
-$SED "s|Running parallel-phpunit [^\\]*|Running parallel-phpunit juu|" tests/ParallelPhpUnitTest.php > tmp
+$SED "s|Running parallel-phpunit [^\\]*|Running parallel-phpunit $1|" tests/ParallelPhpUnitTest.php > tmp
 find . -name "*.delete-me" -delete
 perl -pe 's/^Master/"Master\n\nRelease 1.3"/e' README.md > tmp
 mv tmp README.md
