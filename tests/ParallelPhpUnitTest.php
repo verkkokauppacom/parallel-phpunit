@@ -4,7 +4,7 @@ class ParallelPhpUnitTest extends PHPUnit_Framework_TestCase
     public function testHelpMessage()
     {
         $helpOutput = <<<EOS
-Running parallel-phpunit 1.3
+Running parallel-phpunit 1.3.0
 Paralleling options:
     --pu-cmd - custom phpunit run script, default: first phpunit in PATH or phpunit next to parallel-phpunit
     --pu-threads - max threads, default 3
@@ -27,7 +27,7 @@ EOS;
 
     public function testFiltering()
     {
-        $emptyOutput = "Running parallel-phpunit 1.3\nSuccess: 0 Fail: 0 Error: 0 Skip: 0 Incomplete: 0";
+        $emptyOutput = "Running parallel-phpunit 1.3.0\nSuccess: 0 Fail: 0 Error: 0 Skip: 0 Incomplete: 0";
         $testDir = __DIR__ . "/../example";
         $output = $this->runParallelPHPUnit("--filter noTestsFound " . $testDir, 0);
         $this->assertEquals($emptyOutput, $output);
