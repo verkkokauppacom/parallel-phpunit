@@ -138,9 +138,7 @@ Release Notes
 
 Master
 
-Release 
-
-Release 1.3
+Release 1.3.0
 * Consider failing phpunit commands as test failures (fix for issue #13)
 * Add support for Composer installation
 * Filter the file list to the ones that match given --filter switch (no more "No tests executed" in the logs)
