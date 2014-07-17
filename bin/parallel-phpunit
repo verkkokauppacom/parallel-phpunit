@@ -1,8 +1,4 @@
 #!/bin/bash
-
-# Taken from https://github.com/verkkokauppacom/parallel-phpunit
-# https://github.com/verkkokauppacom/parallel-phpunit/releases/tag/1.3.0
-
 set -f
 VERSION='1.3.0'
 PID=$$
@@ -12,7 +8,7 @@ TMP=`mktemp -d 2> /dev/null`
 (test -n "${TMP}" && test -d "${TMP}") || ! TMP="/tmp/${PID}" || mkdir -p ${TMP} || exit 1
 ARGS="${@:1:$(($#-1))}" # remove last argument
 PHPUNIT_ARG=''
-CFG_MAX_THREAD=4
+CFG_MAX_THREAD=3
 CFG_PHPUNIT_CMD=`which phpunit 2> /dev/null || echo $0 | sed 's|parallel-phpunit$|phpunit|'`
 TEST_SUFFIX="Test.php,.phpt"
 TEST_FILTER="."
