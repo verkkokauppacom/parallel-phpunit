@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Taken from https://github.com/verkkokauppacom/parallel-phpunit
+# https://github.com/verkkokauppacom/parallel-phpunit/releases/tag/1.3.0
+
 set -f
 VERSION='1.3.0'
 PID=$$
@@ -8,8 +12,8 @@ TMP=`mktemp -d 2> /dev/null`
 (test -n "${TMP}" && test -d "${TMP}") || ! TMP="/tmp/${PID}" || mkdir -p ${TMP} || exit 1
 ARGS="${@:1:$(($#-1))}" # remove last argument
 PHPUNIT_ARG=''
-CFG_MAX_THREAD=3
-CFG_PHPUNIT_CMD=`which phpunit || echo $0 | sed 's|parallel-phpunit$|phpunit|'`
+CFG_MAX_THREAD=4
+CFG_PHPUNIT_CMD=`which phpunit 2> /dev/null || echo $0 | sed 's|parallel-phpunit$|phpunit|'`
 TEST_SUFFIX="Test.php,.phpt"
 TEST_FILTER="."
 RETRIES=0
@@ -61,7 +65,7 @@ function replace {
     echo "$1 " | sed "s|--$2[ ][ ]*[^ ][^ ]*|--$2 $3|"
 }
 
-function set_variable_from_arguments { 
+function set_variable_from_arguments {
     argument_value=`echo "$PHPUNIT_ARG " | sed "s|.*--${2}[ =]*||" | sed 's| .*||'`
     test -z "$argument_value" || eval $1="$argument_value"
 }
@@ -208,7 +212,7 @@ done
 
 (echo "$ARGS" | grep -q '\-\-coverage\-') && echo "warning: coverage switches (--coverage-*) are passed directly to parallel phpunit commands so you probably don't want to use them" 1>&2
 (echo "$ARGS" | grep '\-\-log\-' | grep -vq 'log\-junit') && echo "warning: logging switches (--log-*) are passed directly to parallel phpunit commands so you probably don't want to use them" 1>&2
-(echo "$ARGS" | grep -q '\-\-testdox\-') && echo "warning: TestDox switches (--testdox-*) are passed directly to parallel phpunit commands so you probably don't want to use them" 1>&2 
+(echo "$ARGS" | grep -q '\-\-testdox\-') && echo "warning: TestDox switches (--testdox-*) are passed directly to parallel phpunit commands so you probably don't want to use them" 1>&2
 
 # init vars
 threads=()
@@ -220,7 +224,7 @@ do
     i=`expr $i + 1`
 done
 
-junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit " | sed 's|.*--log-junit [ ]*||' | sed 's| .*||'`
+junit_file=`echo "$PHPUNIT_ARG" | grep "\-\-log-junit=" | sed 's|.*--log-junit=[ ]*||' | sed 's| .*||'`
 set_variable_from_arguments TEST_SUFFIX test-suffix
 set_variable_from_arguments TEST_FILTER filter
 
@@ -245,7 +249,7 @@ do
     thread_id=`get_free_thread threads[@]`
     #execute
     #thread number can be use in tests, example: choose free selenium host
-    command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit ${prefix}.junit`$filename"
+    command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `echo "${PHPUNIT_ARG}" | sed "s|${junit_file}|${prefix}.junit|"` $filename"
     run_command ${prefix}.log $command &
     threads[$thread_id]=$!
 done
