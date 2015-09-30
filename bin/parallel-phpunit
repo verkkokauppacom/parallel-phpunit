@@ -245,6 +245,7 @@ do
     thread_id=`get_free_thread threads[@]`
     #execute
     #thread number can be use in tests, example: choose free selenium host
+    export PARALLEL_PHPUNIT_THREAD=${thread_id}
     command="$CFG_PHPUNIT_CMD -d parallel-phpunit-thread=${thread_id} `replace "$PHPUNIT_ARG" log-junit ${prefix}.junit`$filename"
     run_command ${prefix}.log $command &
     threads[$thread_id]=$!
